@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.ServiceModel;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -339,7 +340,7 @@ namespace AltSource.Utilities.VSSolution
                 //Get types inheriting from ServiceBase
                 //Ty: Ideally we could traverse back to the contract name, but this is proving to be impossible 
                 //due to runtime loading of ServiceHost
-                var serviceBaseTypes = assLoader.GetServiceBeseTypes()
+                var serviceBaseTypes = assLoader.GetBaseTypes<ServiceBase>()
                     .Select(t => new WcfService()
                     {
                         Address = new Uri("/", UriKind.Relative),

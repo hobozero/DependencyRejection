@@ -4,6 +4,7 @@ using AltSource.Utilities.VSSolution;
 using AltSource.Utilities.VSSolution.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.ServiceModel;
+using System.ServiceProcess;
 
 namespace AltSource.Utilities.VsSolution.Tests
 {
@@ -63,7 +64,7 @@ namespace AltSource.Utilities.VsSolution.Tests
 
             var assembly = loader.Load();
 
-            var types = loader.GetServiceBeseTypes();
+            var types = loader.GetBaseTypes<ServiceBase>();
 
             Assert.IsTrue(null != types && types.Count() > 0);
         }

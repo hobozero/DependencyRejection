@@ -49,7 +49,7 @@ namespace AltSource.Utilities.VSSolution.Reflection
             return _assembly;
         }
 
-        public IEnumerable<Type> GetServiceBeseTypes()
+        public IEnumerable<Type> GetBaseTypes<T>() where T:class
         {
             if (null != _assembly)
             {
@@ -65,7 +65,7 @@ namespace AltSource.Utilities.VSSolution.Reflection
 
                 return hackTypes
                     .Where(t => t != null)
-                    .Where(t => typeof(ServiceBase).IsAssignableFrom(t));
+                    .Where(t => typeof(T).IsAssignableFrom(t));
             }
 
             throw new Exception("Assembly not loaded");
