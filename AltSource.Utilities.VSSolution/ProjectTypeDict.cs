@@ -30,12 +30,21 @@ namespace AltSource.Utilities.VSSolution
 
     public static class ProjectTypeDict
     {
+
+        public static string TEST_DRIVER = "TestDriver";
+        public static string CCI_TOOLS = "CciTools";
+        public static string UNKNOWN = "Unknown";
+        public static string TEST = "Test";
+
         private static Dictionary<Guid, ProjectType> typeDict;
         static ProjectTypeDict()
         {
             typeDict = new Dictionary<Guid, ProjectType>()
             {
-                {Guid.Empty, new ProjectType(Guid.Empty, "Unknown", Color.Black)},
+                {Guid.Empty, new ProjectType(Guid.Empty, ProjectTypeDict.UNKNOWN, Color.Black)},
+                {Guid.NewGuid(), new ProjectType(Guid.Empty, ProjectTypeDict.TEST_DRIVER, Color.Black)},
+                {Guid.NewGuid(), new ProjectType(Guid.Empty, ProjectTypeDict.CCI_TOOLS, Color.Black)},
+
                 {new Guid("F184B08F-C81C-45F6-A57F-5ABD9991F28F"), new ProjectType(new Guid("F184B08F-C81C-45F6-A57F-5ABD9991F28F"), "Windows (VB.NET)", Color.Black)},
                 {new Guid("8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"), new ProjectType(new Guid("8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"), "Windows (Visual C++)", Color.Black)},
                 //{new Guid("349C5851-65DF-11DA-9384-00065B846F21"), new ProjectType(new Guid("349C5851-65DF-11DA-9384-00065B846F21"), "Web Application", Color)},
@@ -46,7 +55,7 @@ namespace AltSource.Utilities.VSSolution
                 {new Guid("C252FEB5-A946-4202-B1D4-9916A0590387"), new ProjectType(new Guid("C252FEB5-A946-4202-B1D4-9916A0590387"), "Visual Database Tools", Color.DarkTurquoise)},
                 {new Guid("A9ACE9BB-CECE-4E62-9AA4-C7E7C5BD2124"), new ProjectType(new Guid("A9ACE9BB-CECE-4E62-9AA4-C7E7C5BD2124"), "Database", Color.DarkTurquoise)},
                 {new Guid("4F174C21-8C12-11D0-8340-0000F80270F8"), new ProjectType(new Guid("4F174C21-8C12-11D0-8340-0000F80270F8"), "Database (other project types)", Color.DarkTurquoise)},
-                {new Guid("3AC096D0-A1C2-E12C-1390-A8335801FDAB"), new ProjectType(new Guid("3AC096D0-A1C2-E12C-1390-A8335801FDAB"), "Test", Color.DarkMagenta)},
+                {new Guid("3AC096D0-A1C2-E12C-1390-A8335801FDAB"), new ProjectType(new Guid("3AC096D0-A1C2-E12C-1390-A8335801FDAB"), TEST, Color.DarkMagenta)},
                 {new Guid("66A26720-8FB5-11D2-AA7E-00C04F688DDE"), new ProjectType(new Guid("66A26720-8FB5-11D2-AA7E-00C04F688DDE"), "Solution Folder", Color.Brown)},
                 //{new Guid("14822709-B5A1-4724-98CA-57A101D1B079"), new ProjectType(new Guid("14822709-B5A1-4724-98CA-57A101D1B079"), "Workflow (C#)", Color.DarkSlateGray)},
                 //{new Guid("D59BE175-2ED0-4C54-BE3D-CDAA9F3214C8"), new ProjectType(new Guid("D59BE175-2ED0-4C54-BE3D-CDAA9F3214C8"), "Workflow (VB.NET)", Color)},

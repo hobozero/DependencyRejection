@@ -15,6 +15,9 @@ namespace AltSource.Utilities.VSSolution
         public string FilePath;
         public List<ProjectFile> Projects; //guid identifier
         public string InputText { get; set; }
+        private static Regex _regexProjectMention = new Regex(@"^\s*{([0-9A-F]{8}-(?:[0-9A-F]{4}-){3}[0-9A-F]{12})}", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        private static Regex _regexProjectSection = new Regex(@"ProjectSection\(ProjectDependencies\)\s=\spostProject((?:.|[\r\n])+?)\sEndProjectSection", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        private static Regex _regexProject = new Regex(@"Project(\((?:.|[\r\n])+?)EndProject[\r\n]", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
         public string FileName
         {
@@ -33,36 +36,38 @@ namespace AltSource.Utilities.VSSolution
 
             };
 
-            int index = 0; var done = false;
-            while (index < inputText.Length && !done)
+
+            foreach (Match projectMatch in _regexProject.Matches(inputText))
             {
-                var projectString = inputText.GetBetween("Project", "EndProject", ref index);
+                var projectString = projectMatch.Groups[1].Value;
                 if (projectString != null)
                 {
                     var projectGuid = ParseProjectGuid(projectString);
                     var dependentProjects = projectList.Where(proj => proj.ProjectId == projectGuid).ToList();
 
-                    if (dependentProjects.Count() == 0)
+                    if (null == dependentProjects)
                     {
                         ProjectType projectType = ParseProjectType(projectString);
-                        //Is solutionFolder
+                        //Is SolutionFolder
                         if (projectType.ID != Guid.Parse("2150E333-8FDC-42A3-9474-1A3956D46DE8"))
                         {
                             var assName = ParseProjectAssemblyName(projectString);
-                            var stubProject = ProjectFile.Build(projectGuid, assName, projectType);
-                            dependentProjects.Add(stubProject);
-                            projectList.Add(stubProject);
+                            dependentProjects.Add(ProjectFile.Build(projectGuid, assName, projectType));
+                            projectList.AddRange(dependentProjects);
                         }
                     }
 
-                    solution.Projects.AddRange(dependentProjects);
-                    foreach (var project in dependentProjects)
+                    dependentProjects.AddRange(ParsePostProjects(projectString, projectList));
+
+                    var newDependencies = dependentProjects.Where(p => !solution.Projects.Any(sp => sp == p));
+                    solution.Projects.AddRange(newDependencies);
+                    foreach (var dependentProject in newDependencies)
                     {
-                        project.ReferencedBySolutions.Add(solution);
+                        dependentProject.ReferencedBySolutions.Add(solution);
                     }
                 }
             }
-
+            
             return solution;
         }
 
@@ -113,19 +118,18 @@ EndProject",
 
             return true;
         }
-
-
+        
         public bool RemoveProjectFileFromSolution(ProjectFile projectFile)
         {
-            var regexProjRef = new Regex(@"Project\(""{.+(?:" + projectFile.ProjectId.ToString() + @")}""\r\nEndProject\r\n", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            var regexConfigs = new Regex(@"^\s*\{" + projectFile.ProjectId.ToString() + @"\}.+", RegexOptions.IgnoreCase);
+            var regexConfigs = new Regex(@"\s*\{"+ projectFile.ProjectId.ToString() + @"\}(?:\.|\s=).+?[\r\n]", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            var regexProject = new Regex(@"Project\(\""[^\n\r]+?\{" + projectFile.ProjectId + @"\}\"".+?EndProject[\n\r]", RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
-            if (regexProjRef.IsMatch(InputText))
-            {
-                InputText = regexProjRef.Replace(InputText, string.Empty);
+            int originalLEngth = InputText.Length;
+            InputText = regexProject.Replace(InputText, string.Empty);
 
-                InputText = regexConfigs.Replace(InputText, String.Empty);
+            InputText = regexConfigs.Replace(InputText, String.Empty);
 
+            if (originalLEngth != InputText.Length) { 
                 File.WriteAllText(this.FilePath, this.InputText);
                 this.Projects.RemoveAll( p => p.ProjectId == projectFile.ProjectId);
                 return true;
@@ -134,6 +138,56 @@ EndProject",
             return false;
         }
 
+        /// <summary>
+        /// Lists any projects that may be referenced in teh solution, but that aren't specifically included.  This might prevent the solution from loading.
+        /// You can clean the solution by running the Emanciapte()
+        /// </summary>
+        /// <returns></returns>
+        public List<ProjectFile> AbsentProjects(string projectText)
+        {
+            var mentionables = new List<ProjectFile>();
+            foreach (Match match in _regexProjectMention.Matches(this.InputText))
+            {
+                Guid guid = Guid.Parse(match.Captures[0].Value);
+
+                ProjectFile mentionable = ProjectFile.Build(guid, string.Empty, ProjectTypeDict.Get(Guid.Empty));
+
+                if (!Projects.Contains(mentionable) && !mentionables.Contains(mentionable))
+                {
+                    mentionables.Add(mentionable);
+                }
+            }
+            return mentionables;
+        }
+
+        #region Internals
+
+
+        private static List<ProjectFile> ParsePostProjects(string projectString, List<ProjectFile> projectList)
+        {
+            var postProjects = new List<ProjectFile>(5);
+            var postProjectMatch = _regexProjectSection.Match(projectString);
+
+            if (postProjectMatch.Length > 0)
+            {
+                var contents = postProjectMatch.Groups[1].Value;
+                foreach (Match match in _regexProjectMention.Matches(contents))
+                {
+                    Guid postProjectGuid = Guid.Parse(match.Groups[1].Value);
+                    var postProject = projectList.Where(proj => proj.ProjectId == postProjectGuid).FirstOrDefault();
+
+                    if (null == postProject)
+                    {
+                        postProject = ProjectFile.Build(postProjectGuid, string.Empty, ProjectTypeDict.Get(Guid.Empty));
+                        projectList.Add(postProject);
+                        postProjects.Add(postProject);
+                    }
+                    postProjects.Add(postProject);
+                }
+            }
+            return postProjects;
+        }
+        
         private static ProjectType ParseProjectType(string projectString)
         {
             var idGuidStr = projectString
@@ -175,6 +229,7 @@ EndProject",
 
             return assName;
         }
+        #endregion
 
         public override bool Equals(object obj)
         {

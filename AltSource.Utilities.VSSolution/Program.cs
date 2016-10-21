@@ -29,7 +29,7 @@ namespace AltSource.Utilities.VSSolution
             //if save didn't populate
             if (dependencies == null)
             {
-                dependencies = factory.BuildFromDisk(devFolder);
+                dependencies = factory.BuildFromDisk(devFolder, false);
                 factory.SaveToFile(saveFileName, dependencies);
             }
 
@@ -49,7 +49,7 @@ namespace AltSource.Utilities.VSSolution
                 if (consoleInput.Contains("--refresh"))
                 {
                     //refresh here
-                    factory.BuildFromDisk(devFolder);
+                    factory.BuildFromDisk(devFolder, false);
                     continue;
                 }
 

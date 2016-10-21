@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,6 +14,8 @@ using System.IO;
 using System.Security.AccessControl;
 using System.Xml.Linq;
 using AltSource.Utilities.VSSolution.Filters;
+using ApplicationCatalog;
+using DependercyRejectionUI.Repository;
 
 namespace DependercyRejectionUI
 {
@@ -62,7 +66,7 @@ namespace DependercyRejectionUI
 
             LoadChkProjectTypes();
             LoadChkOutputTypes();
-            
+
         }
 
         private void GraphFactory_OutputLog(object sender, string msg)
@@ -73,11 +77,11 @@ namespace DependercyRejectionUI
 
         private void Button_BuildFromDirectory_Click(object sender, EventArgs e)
         {
-            DependencyGraph = GraphFactory.BuildFromDisk(TextBox_DirectoryInputText.Text);
+            DependencyGraph = GraphFactory.BuildFromDisk(TextBox_DirectoryInputText.Text, chkTrunkOnly.Checked);
 
             if (DependencyGraph != null)
             {
-                PopulateComboBox();
+                PopulateComboBoxes();
                 CurrentLoadState = LoadState.Loaded;
             }
         }
@@ -112,13 +116,17 @@ namespace DependercyRejectionUI
             {
                 this.DependencyGraph = GraphFactory.LoadFromFile(dialog.FileName);
                 this.CurrentLoadState = LoadState.Loaded;
-                PopulateComboBox();
+                PopulateComboBoxes();
             }
         }
 
         private void Button_LoadAssemblyInformation_Click(object sender, EventArgs e)
         {
-             BuildFilteredProjectTree(GetACtiveProjectFile(false),  this._displayFilters);
+            var projectFile = GetACtiveProjectFile(false);
+            if (null != projectFile)
+            {
+                BuildFilteredProjectTree(projectFile, this._displayFilters);
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -146,24 +154,42 @@ namespace DependercyRejectionUI
             TreeView_AssemblyInformationTree.Enabled = enabled;
         }
 
-        private void PopulateComboBox()
+        private void PopulateComboBoxes()
         {
             ComboBox_AssemblySelector.Items.Clear();
-            var items = DependencyGraph.ProjectFiles
+            var projItems = DependencyGraph.ProjectFiles
                 .OrderBy(proj => proj.AssemblyName)
                 .Select(project =>
                 {
-                    return new ComboBoxItem()
+                    return new ComboBoxProject()
                     {
-                        Text = ((project.Exists) ? string.Empty : "   ### (in sln but missing) - " ) +   project.AssemblyName,
+                        Text =
+                            ((project.Exists) ? string.Empty : "   ### (in sln but missing) - ") + project.AssemblyName,
                         Value = project
                     };
                 }).ToArray();
 
-            foreach (var item in items.Where(item => item.Text != null))
+            foreach (var item in projItems.Where(item => item.Text != null))
             {
                 ComboBox_AssemblySelector.Items.Add(item);
                 ComboBox_FilterAssembly.Items.Add(item);
+            }
+
+
+            cboSolutionToClean.Items.Clear();
+            var solnItems = DependencyGraph.SolutionFiles
+                .Select(soln =>
+                {
+                    return new ComboBoxSolution()
+                    {
+                        Text = soln.FileName,
+                        Value = soln
+                    };
+                }).ToArray();
+
+            foreach (var item in solnItems.Where(item => item.Text != null))
+            {
+                cboSolutionToClean.Items.Add(item);
             }
         }
 
@@ -198,7 +224,7 @@ namespace DependercyRejectionUI
             TreeView_AssemblyInformationTree.Nodes.Add(solutionsNode);
 
         }
-        
+
         private void LoadChkProjectTypes()
         {
             chkProjectTypes.Items.AddRange(
@@ -275,7 +301,7 @@ namespace DependercyRejectionUI
 
         private void ComboBox_FilterAssembly_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var newFilterProject = (ComboBox_FilterAssembly.SelectedItem as ComboBoxItem);
+            var newFilterProject = (ComboBox_FilterAssembly.SelectedItem as ComboBoxProject);
 
             if (null != newFilterProject)
             {
@@ -305,47 +331,52 @@ namespace DependercyRejectionUI
 
         private void Out_Click(object sender, EventArgs e)
         {
-            var assemblies = DependencyGraph.ProjectFiles
-                .OrderBy(proj => proj.AssemblyName);
+            IEnumerable<ProjectFile> projects;
 
-            using (StreamWriter sw = new StreamWriter(@"D:\\projects.csv", false))
+            if (chkExportSelectedOnly.Checked)
             {
-                sw.WriteLine(@"AssemblyName,Path,OutputType,ProjectType,ReferencedBy,References");
+                var currentlySelectedPRoject = GetACtiveProjectFile(false);
+                projects = currentlySelectedPRoject.ReferencesProjects;
 
-                foreach (var project in assemblies.Where(item => item.AssemblyName != null))
-                {
-                    sw.WriteLine(string.Format(@"""{0}"",""{1}"",""{2}-{3}"",{4}",
-                        project.AssemblyName,
-                        project.FilePath,
-                        project.OutputType.ToString() + "-" +
-                        project.ProjectType.TypeName,
-                        project.ReferencedByProjects.Count,
-                        project.ReferencesProjects.Count
-                        ));
+            }
+            else
+            {
+                var assemblies = DependencyGraph.ProjectFiles
+                    .OrderBy(proj => proj.AssemblyName);
 
-                }
+                projects = assemblies.Where(item => item.AssemblyName != null);
             }
 
+            Output(projects, chkAppOnly.Checked);
         }
 
-        private void btnExportCurrent_Click(object sender, EventArgs e)
+        protected void Output(IEnumerable<ProjectFile> projects, bool appOnly)
         {
-            var currentlySelectedPRoject = GetACtiveProjectFile(false);
+            SaveFileDialog sfDialog = new SaveFileDialog();
+            sfDialog.ShowDialog();
 
-            using (StreamWriter sw = new StreamWriter(@"D:\\projectsCurrent.csv", false))
+            string fileName = sfDialog.FileName;
+
+            using (StreamWriter sw = new StreamWriter(fileName, false))
             {
-                sw.WriteLine(@"AssemblyName,Path,OutputType-ProjectType,ReferencedBy,References");
+                sw.WriteLine(@"AssemblyName,OctoPack,Path,OutputType-ProjectType,ReferencedBy,References,DBs");
 
-                foreach (var project in currentlySelectedPRoject.ReferencesProjects)
+                foreach (var project in projects)
                 {
-                    sw.WriteLine(string.Format(@"""{0}"",""{1}"",""{2}"",{3},{4}",
-                        project.AssemblyName,
-                        project.FilePath,
-                        project.OutputType.ToString() + "-" + project.ProjectType.TypeName,
-                        project.ReferencedByProjects.Count,
-                        project.ReferencesProjects.Count
-                        ));
+                    if (!appOnly ||
+                        (project.IsTopLevel &&
+                         project.ProjectType.TypeName != ProjectTypeDict.CCI_TOOLS &&
+                         project.ProjectType.TypeName != ProjectTypeDict.TEST_DRIVER))
+                    {
+                        string dbNAmes = (project.ConfigFile != null)
+                            ? string.Join("\t", project.ConfigFile.DbNames.ToArray())
+                            : string.Empty;
 
+                        sw.WriteLine(
+                            $@"""{project.AssemblyName}"",""{project.OctoPackProjectName}"",""{project.FilePath}"",""{
+                                project.OutputType.ToString()}-{project.ProjectType.TypeName}"",{
+                                project.ReferencedByProjects.Count},{project.ReferencesProjects.Count},""{dbNAmes}""");
+                    }
                 }
             }
         }
@@ -355,8 +386,8 @@ namespace DependercyRejectionUI
             if (TextBox_DirectoryInputText.Text.ToLower().EndsWith("trunk"))
             {
                 var confirmResult = MessageBox.Show("You are about to update trunk! you sure?",
-                                     "Confirm update!!",
-                                     MessageBoxButtons.YesNo);
+                    "Confirm update!!",
+                    MessageBoxButtons.YesNo);
                 if (confirmResult == DialogResult.No)
                     return;
             }
@@ -370,8 +401,9 @@ namespace DependercyRejectionUI
             }
 
 
-            IEnumerable<ProjectFile> projList = txtDestProjects.Text.Split(new string[] { "\r", "\n", "\t" }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(p => DependencyGraph.FindFileByName(p));
+            IEnumerable<ProjectFile> projList = txtDestProjects.Text.Split(new string[] {"\r", "\n", "\t"},
+                StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => DependencyGraph.FindFileByName(p));
             WriteLog("Updating listed projects");
 
 
@@ -391,7 +423,7 @@ namespace DependercyRejectionUI
                         AppendLog("Project skipped.");
                     }
 
-                    AppendLog("[Removed] " + removed.ToString( ) + " existing references.");
+                    AppendLog("[Removed] " + removed.ToString() + " existing references.");
                     AppendLog("[Reference added] ");
                 }
             }
@@ -413,7 +445,9 @@ namespace DependercyRejectionUI
             txtResults.Text = string.Empty;
             var currentlySelectedProject = GetACtiveProjectFile(true);
 
-            ProjectType defaultAddType = (currentlySelectedProject.ProjectType.ID == Guid.Empty) ? ProjectTypeDict.GetByName("c#") : currentlySelectedProject.ProjectType;
+            ProjectType defaultAddType = (currentlySelectedProject.ProjectType.ID == Guid.Empty)
+                ? ProjectTypeDict.GetByName("c#")
+                : currentlySelectedProject.ProjectType;
 
             foreach (var deadBeatSolutionFile in currentlySelectedProject.GetDeadBeatSolutionFiles())
             {
@@ -427,22 +461,30 @@ namespace DependercyRejectionUI
                 }
             }
         }
-        
+
         private void btnRemoveProjectFromSolns_Click(object sender, EventArgs e)
         {
             var currentlySelectedProject = GetACtiveProjectFile(true);
 
-            var removed = currentlySelectedProject.Emancipate();
-            foreach(var solutionFile in removed)
+            if (null != currentlySelectedProject)
             {
-                AppendLog("Updated " + solutionFile.FilePath + " soution files.");
+                var removed = currentlySelectedProject.Emancipate();
+                foreach (var solutionFile in removed)
+                {
+                    AppendLog("Updated " + solutionFile.FilePath + " solution files.");
+                }
             }
+            else
+            {
+                WriteLog("No ProjectFile selected or stud data provided");
+            }
+
         }
 
         private void btnRemoveFromAllSolns_Click(object sender, EventArgs e)
         {
             var currentlySelectedProject = GetACtiveProjectFile(true);
-                
+
             var removed = currentlySelectedProject.Emancipate(DependencyGraph.SolutionFiles);
 
             foreach (var solutionFile in removed)
@@ -457,11 +499,14 @@ namespace DependercyRejectionUI
 
             if (null != DependencyGraph)
             {
-                foreach ( var projFile in txtDestProjects.Text.Split(new string[] {"\r", "\n", "\t"}, StringSplitOptions.RemoveEmptyEntries).Select(pn => DependencyGraph.FindFileByName(pn)))
+                foreach (
+                    var projFile in
+                        txtDestProjects.Text.Split(new string[] {"\r", "\n", "\t"},
+                            StringSplitOptions.RemoveEmptyEntries).Select(pn => DependencyGraph.FindFileByName(pn)))
                 {
                     if (null == projFile)
                     {
-                        txtResults.Text += "[Dependency Graph does not contain project] "  + Environment.NewLine;
+                        txtResults.Text += "[Dependency Graph does not contain project] " + Environment.NewLine;
                     }
                     else
                     {
@@ -490,25 +535,14 @@ namespace DependercyRejectionUI
                 return;
             }
 
-            txtDestProjects.Text = string.Join(Environment.NewLine,currentlySelectedProject.GetAncestors().Select(p => p.AssemblyName));
+            txtDestProjects.Text = string.Join(Environment.NewLine,
+                currentlySelectedProject.GetAncestors().Select(p => p.AssemblyName));
 
-        }
-
-        private void btnAddPackage_Click(object sender, EventArgs e)
-        {
-            foreach (
-                var projFile in
-                    txtDestProjects.Text.Split(new string[] {"\r", "\n", "\t"}, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(pn => DependencyGraph.FindFileByName(pn)))
-            {
-                //projFile.Packages.Root.AddAfterSelf(
-                //    new XElement());
-            }
         }
 
         #region Helpers
 
-        private class ComboBoxItem
+        private class ComboBoxProject
         {
             public string Text { get; set; }
             public ProjectFile Value { get; set; }
@@ -518,6 +552,18 @@ namespace DependercyRejectionUI
                 return Text;
             }
         }
+
+        private class ComboBoxSolution
+        {
+            public string Text { get; set; }
+            public SolutionFile Value { get; set; }
+
+            public override string ToString()
+            {
+                return Text;
+            }
+        }
+
         private ProjectFile GetACtiveProjectFile(bool overrideWithManualProject)
         {
             ProjectFile rtnProj = null;
@@ -533,7 +579,7 @@ namespace DependercyRejectionUI
             }
             else
             {
-                var selectedItem = ComboBox_AssemblySelector.SelectedItem as ComboBoxItem;
+                var selectedItem = ComboBox_AssemblySelector.SelectedItem as ComboBoxProject;
                 if (null != selectedItem)
                 {
                     rtnProj = selectedItem.Value;
@@ -548,10 +594,12 @@ namespace DependercyRejectionUI
         {
             txtResults.Text += text + Environment.NewLine;
         }
+
         private void WriteLog(string text)
         {
             txtResults.Text = text + Environment.NewLine;
         }
+
         #endregion
 
         private void txtMissing_Click(object sender, EventArgs e)
@@ -570,21 +618,186 @@ namespace DependercyRejectionUI
 
             WriteLog("Unique Projects\r\n---------------\r\n");
             AppendLog(
-                string.Join("\r\n", missTuples.Select(t => string.Format("{0} {1}", t.Item2.AssemblyName, t.Item2.ProjectId)).Distinct().ToArray())
+                string.Join("\r\n",
+                    missTuples.Select(t => string.Format("{0} {1}", t.Item2.AssemblyName, t.Item2.ProjectId))
+                        .Distinct()
+                        .ToArray())
                 );
             AppendLog("");
             AppendLog(
                 string.Join(
                     "\r\n===========================\r\n",
-                    missTuples.Select(t => string.Format("{0}\r\n{1} {2}", t.Item1.FileName, t.Item2.AssemblyName, t.Item2.ProjectId.ToString())).ToArray())
+                    missTuples.Select(
+                        t =>
+                            string.Format("{0}\r\n{1} {2}", t.Item1.FileName, t.Item2.AssemblyName,
+                                t.Item2.ProjectId.ToString())).ToArray())
                 );
-            
+
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void btnCorruptedProjects_Click(object sender, EventArgs e)
         {
+            if (null == DependencyGraph.SolutionFiles)
+            {
+                WriteLog("Gotta load the Graph first");
+                return;
+            }
+            foreach (var solutionFile in DependencyGraph.SolutionFiles)
+            {
+                AppendLog("\r\n");
+                AppendLog(solutionFile.FilePath);
+                AppendLog("====================================================");
 
+                AppendLog(string.Join("\r\n",
+                    solutionFile.AbsentProjects(solutionFile.InputText).Select(p => p.ProjectId).ToArray()));
+
+            }
         }
-    }
 
+        private void btnRemoveProjectFromOneSoln_Click(object sender, EventArgs e)
+        {
+            var soln = cboSolutionToClean.SelectedItem as ComboBoxSolution;
+            if (null != soln)
+            {
+                var proj = GetACtiveProjectFile(true);
+                if (proj != null)
+                {
+                    proj.Emancipate(new SolutionFile[] {soln.Value});
+                }
+
+            }
+            else
+            {
+                WriteLog("Solution file not selected");
+            }
+        }
+
+        private void btnListPackages_Click(object sender, EventArgs e)
+        {
+            var devFolder = TextBox_DirectoryInputText.Text;
+            var packages = Directory.EnumerateFiles(devFolder, "packages.config", SearchOption.AllDirectories)
+                //<--- .NET 4.5
+                .ToArray()
+                .Select(p => PackagesFile.Build(p))
+                .Where(p => p.GetVersionOfLibrary(txtPackageId.Text) == txtPackageVersion.Text);
+
+            foreach (var package in packages)
+            {
+                var proj = package.GetProject();
+                if (null != proj)
+                {
+                    AppendLog(string.Format("Update-Package {0} {1}", txtPackageId.Text, proj.AssemblyName));
+                }
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            IEnumerable<ProjectFile> projects;
+
+            if (chkExportSelectedOnly.Checked)
+            {
+                var currentlySelectedPRoject = GetACtiveProjectFile(false);
+                projects = currentlySelectedPRoject.ReferencesProjects;
+            }
+            else
+            {
+                var assemblies = DependencyGraph.ProjectFiles
+                    .OrderBy(proj => proj.AssemblyName);
+
+                projects = assemblies.Where(item => item.AssemblyName != null);
+            }
+
+            using (
+                IDbConnection db =
+                    new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
+            {
+                db.Open();
+                var repo = new ProjectFileRepository(db);
+
+                foreach (var projectFile in projects)
+                {
+                    repo.UpdateProjectFile(projectFile);
+                }
+
+                db.Close();
+            }
+        }
+
+        private void btnLoadAppCatalog_Click(object sender, EventArgs e)
+        {
+            var dialog = new OpenFileDialog();
+            dialog.InitialDirectory = TextBox_DirectoryInputText.Text;
+            //Text files (*.txt)|*.txt|All files (*.*)|*.*
+            dialog.Filter = "CSV files (*.csv)|*.csv";
+            dialog.Multiselect = false;
+            var result = dialog.ShowDialog();
+
+            IEnumerable<DeployedApplication> catalogApps;
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string db = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+
+                CatalogApplicationRepository repo = new CatalogApplicationRepository(dialog.FileName, db);
+
+                catalogApps = repo.GetApps();
+
+                foreach (var catalogApp in catalogApps)
+                {
+                    repo.UpsertApplication(catalogApp);
+                }
+            }
+        }
+
+        private void btnAddOctoPack_Click(object sender, EventArgs e)
+        {
+            var projs = DependencyGraph.ProjectFiles
+                .Where(p => p.IsTopLevel && string.IsNullOrEmpty(p.OctoPackProjectName));
+
+            foreach (var projectFile in projs)
+            {
+                var newOctoName = string.Empty;
+                string[] segments = projectFile.AssemblyName.Split(new char[] {'.'},
+                    StringSplitOptions.RemoveEmptyEntries);
+                if (segments.Length == 1)
+                {
+                    newOctoName = projectFile.AssemblyName;
+                }
+
+                else if (segments.Length > 2 && segments[0] == "CCI" && segments[1] == "Api")
+                {
+                    newOctoName = string.Join("", segments.Skip(2).ToArray()) + "Api";
+                }
+                else if (segments.Length > 2 && segments[0] == "CCI" && segments[1] == "App")
+                {
+                    newOctoName = string.Join("", segments.Skip(2).ToArray());
+                }
+                else if (segments.Length > 2 && segments[0] == "CCI" && segments[1] == "Billing")
+                {
+                    newOctoName = string.Join("", segments.Skip(2).ToArray());
+                }
+                else if (segments.Length > 2 && segments[0] == "CCI" && segments[1] == "Accounting")
+                {
+                    newOctoName = string.Join("", segments.Skip(1).ToArray());
+                }
+                else if (segments[0] == "CCI")
+                {
+                    newOctoName = string.Join("", segments.Skip(1).ToArray());
+                }
+                else
+                {
+                    newOctoName = string.Join("", segments.ToArray());
+                }
+
+                if (projectFile.AddOctoPackName(newOctoName))
+                {
+                    projectFile.Xml.Save(projectFile.FilePath, SaveOptions.OmitDuplicateNamespaces);
+
+                    AppendLog(projectFile.FilePath);
+
+                }
+            }
+        }
+        
+    }
 }
