@@ -8,18 +8,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using ApplicationCatalog;
 using Dapper;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.VisualBasic.FileIO;
 
-namespace DependercyRejectionUI.Repository
+namespace ApplicationCatalog.Repository
 {
-    public class CatalogApplicationRepository
+    public class DeployedApplicationRepository
     {
         private IDbConnection _dbCn;
         private string _csv;
-        public CatalogApplicationRepository(string csv, string dbConnectionString)
+        public DeployedApplicationRepository(string csv, string dbConnectionString)
         {
             _csv = csv;
             _dbCn = new SqlConnection(dbConnectionString);
@@ -52,7 +53,6 @@ namespace DependercyRejectionUI.Repository
                             BusinessArea = fields[17],
                             Description = fields[6],
                             OctoName = fields[1].Trim(),
-                            UserAccount = fields[11].Trim()
                         };
 
                         var alreadyApp = apps
@@ -60,7 +60,6 @@ namespace DependercyRejectionUI.Repository
                         if (null == alreadyApp)
                         {
                             app.SetAppType(fields[7]);
-                            app.SetIpPort(fields[4].Trim(), fields[5].Trim());
                             app.SetSolarWinds(fields[2].Trim());
                             app.Logs = fields[10].Trim();
                         }
@@ -69,8 +68,23 @@ namespace DependercyRejectionUI.Repository
                             app = alreadyApp;
                         }
                         
-                        app.DeployedLocations.Add(fields[9].Trim());
                         app.AddSchedule(fields[8].Trim());
+
+
+                        string userAccount = fields[11].Trim();
+                        string deployedPath = fields[9].Trim();
+                        string deployedMachine = fields[0].Trim();
+                        string ip = fields[4].Trim();
+                        string port = fields[5].Trim();
+                        var deployment = new DeployedLocation(app)
+                        {
+                            MachineName = deployedMachine,
+                            Path = deployedPath,
+                            UserAccount = userAccount
+                        };
+                        deployment.SetIpPort(ip, port);
+
+                        app.DeployedLocations.Add(deployment);
 
 
                         apps.Add(app);
@@ -97,12 +111,35 @@ namespace DependercyRejectionUI.Repository
                         DeployedType = application.DeployedType.ToString(),
                         Description  = application.Description,
                         SolarWinds = application.SolarWinds.ToString(),
-                        Logs = application.Logs,
-                        IP = application.Ip,
-                        Port = application.Port
+                        Logs = application.Logs
                     },
                     commandType: CommandType.StoredProcedure);
-                //TODO: Get schedules and Locations
+                //TODO: Get schedules
+
+
+                //Save locations
+
+                string sqlLocationInsert = @"[app].[usp_DeployedLocation_Upsert]";
+                string sqlLocationClean = @"delete from [app].[DeployedLocation] WHERE octoPack = @octoPack";
+
+                this._dbCn.Execute(sqlLocationClean, new
+                {
+                    octoPack = application.OctoName
+                });
+
+                foreach (var deployedLocation in application.DeployedLocations)
+                {
+                    this._dbCn.Execute(sqlLocationInsert, new
+                    {
+                        OctoPack = application.OctoName,
+                        machineName = deployedLocation.MachineName,
+                        path = deployedLocation.Path,
+                        IP = deployedLocation.Ip,
+                        port = deployedLocation.Port
+                    },
+                    commandType: CommandType.StoredProcedure);
+                }
+
             }
             finally
             {

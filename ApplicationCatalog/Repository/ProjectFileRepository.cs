@@ -8,9 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AltSource.Utilities.VSSolution;
+using ApplicationCatalog.Extensions;
 using Dapper;
 
-namespace DependercyRejectionUI.Repository
+namespace ApplicationCatalog.Repository
 {
     public class ProjectFileRepository
     {
@@ -98,6 +99,11 @@ namespace DependercyRejectionUI.Repository
             RefreshDBs(projectFile);
 
             RefreshServices(projectFile);
+
+            if (projectFile.HasHealthEndpoint())
+            {
+                UpsertHealthEndpoint(projectFile);
+            }
         }
 
         protected void RefreshDBs(ProjectFile projectFile)
@@ -200,6 +206,29 @@ namespace DependercyRejectionUI.Repository
                 }
                 
             }
+        }
+
+        protected void UpsertHealthEndpoint(ProjectFile projectFile)
+        {
+            string sqlDbDelete = @"DELETE from [app].[HealthEndpoint] where [ProjectId] = @ProjectId";
+
+            string sqlDbInsert = @"INSERT INTO [app].[HealthEndpoint]
+           ([URI]
+           ,[ProjectId])
+     VALUES
+           (@URI
+           ,@projectId)";
+
+            this._db.Execute(sqlDbDelete, new
+            {
+                ProjectId = projectFile.ProjectId
+            });
+
+            this._db.Execute(sqlDbInsert, new
+            {
+                ProjectId = projectFile.ProjectId,
+                URI = "/health"
+            });
         }
     }
 }

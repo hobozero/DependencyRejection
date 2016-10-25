@@ -51,22 +51,8 @@ namespace AltSource.Utilities.VSSolution.Reflection
 
         public IEnumerable<Type> GetBaseTypes<T>() where T:class
         {
-            if (null != _assembly)
-            {
-                Type[] hackTypes;
-                try
-                {
-                    hackTypes = _assembly.GetTypes();
-                }
-                catch (ReflectionTypeLoadException e)
-                {
-                    hackTypes = e.Types;
-                }
-
-                return hackTypes
-                    .Where(t => t != null)
+            return GetTypesWithoutErrors()
                     .Where(t => typeof(T).IsAssignableFrom(t));
-            }
 
             throw new Exception("Assembly not loaded");
         }
@@ -88,7 +74,7 @@ namespace AltSource.Utilities.VSSolution.Reflection
 
                 var typesToConsider = hackTypes
                     .Where(t => t != null)
-                    .SelectMany(t => GetServiceHosts(t))
+                    .SelectMany(t => GetGenericFieldTypes(t))
                     .Union(hackTypes.Where(t => t != null));
 
 
@@ -109,8 +95,14 @@ namespace AltSource.Utilities.VSSolution.Reflection
             throw new Exception("Assembly not loaded");
         }
 
+        public bool ContainsTypeName(IEnumerable<string> typeNames)
+        {
+            return GetTypesWithoutErrors()
+                .SelectMany(t => GetParentTypes(t, true))
+                .Any(at => typeNames.Contains(at.FullName));
+        }
 
-        IEnumerable<Type> GetServiceHosts(Type type)
+        IEnumerable<Type> GetGenericFieldTypes(Type type)
         {
            // Console.WriteLine($"SErviceHosts {type.FullName}");
             var hackFields = type.GetFields(BindingFlags.NonPublic |
@@ -143,7 +135,58 @@ namespace AltSource.Utilities.VSSolution.Reflection
 
 
             return serviceHostParms;
-        } 
-        
+        }
+
+
+        IEnumerable<Type> GetTypesWithoutErrors()
+        {
+            if (null != _assembly)
+            {
+                Type[] hackTypes;
+                try
+                {
+                    hackTypes = _assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    hackTypes = e.Types;
+                }
+
+                return hackTypes
+                    .Where(t => t != null);
+            }
+            else
+            {
+                return new Type[0];
+            }
+        }
+
+        public static IEnumerable<Type> GetParentTypes(Type type, bool selfToo)
+        {
+            // is there any base type?
+            if ((type == null) || (type.BaseType == null))
+            {
+                yield break;
+            }
+
+            // return all implemented or inherited interfaces
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+
+            // return all inherited types
+            var currentBaseType = type.BaseType;
+            while (currentBaseType != null)
+            {
+                yield return currentBaseType;
+                currentBaseType = currentBaseType.BaseType;
+            }
+
+            if (selfToo)
+            {
+                yield return type;
+            }
+        }
     }
 }

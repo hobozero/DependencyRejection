@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using AltSource.Utilities.VSSolution;
 
-namespace DependercyRejectionUI.Repository
+namespace ApplicationCatalog.Repository
 {
     public interface IProjectFileRepository
     {

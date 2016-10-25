@@ -31,8 +31,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AltSource.Toolbox.ServiceProxyUtility, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AltSource.Toolbox.ServiceProxyUtility.1.1.0\lib\net45\AltSource.Toolbox.ServiceProxyUtility.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="BouncyCastle.Crypto, Version=1.7.4137.9688, Culture=neutral, PublicKeyToken=a4292a325f69b123, processorArchitecture=MSIL">
       <HintPath>..\packages\BouncyCastle.1.7.0\lib\Net40-Client\BouncyCastle.Crypto.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CCI.Diagnostics, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CCI.Diagnostics.1.0.0.0\lib\net45\CCI.Diagnostics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CCI.Logging.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CCI.Logging.Interfaces.1.0.0.0\lib\net45\CCI.Logging.Interfaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -83,12 +95,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeployedApplication.cs" />
+    <Compile Include="DeployedLocation.cs" />
+    <Compile Include="Extensions\ProjectFileExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository\CatalogApplicationRepository.cs" />
+    <Compile Include="Repository\DeployedApplicationRepository.cs" />
+    <Compile Include="Repository\IProjectFileRepository.cs" />
+    <Compile Include="Repository\ProjectFileRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AltSource.Utilities.VSSolution\AltSource.Utilities.VSSolution.csproj">
+      <Project>{c391959f-ce4d-4265-a107-cea32b22921b}</Project>
+      <Name>AltSource.Utilities.VSSolution</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

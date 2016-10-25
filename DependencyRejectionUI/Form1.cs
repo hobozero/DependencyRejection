@@ -15,7 +15,7 @@ using System.Security.AccessControl;
 using System.Xml.Linq;
 using AltSource.Utilities.VSSolution.Filters;
 using ApplicationCatalog;
-using DependercyRejectionUI.Repository;
+using ApplicationCatalog.Repository;
 
 namespace DependercyRejectionUI
 {
@@ -738,7 +738,7 @@ namespace DependercyRejectionUI
             {
                 string db = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
-                CatalogApplicationRepository repo = new CatalogApplicationRepository(dialog.FileName, db);
+                var repo = new DeployedApplicationRepository(dialog.FileName, db);
 
                 catalogApps = repo.GetApps();
 

@@ -29,15 +29,12 @@ namespace ApplicationCatalog
     
     public class DeployedApplication
     {
-        static Regex regexIp = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
         public DeployedApplication()
         {
             this.DeployedType = AppType.Unknown;
             this.Schedules = new List<string>();
-            this.DeployedLocations = new List<string>();
             this.SolarWinds = SolarWinds.NotAvailable;
-            Ip = String.Empty;
-            Port = 0;
+            DeployedLocations = new List<DeployedLocation>();
         }
         public string OctoName { get; set; }
         public string BusinessArea { get; set; }
@@ -45,11 +42,9 @@ namespace ApplicationCatalog
         public string Description { get; set; }
         public SolarWinds SolarWinds { get; set; }
         public string Logs { get; set; }
-        public string UserAccount { get; set; }
-        public string Ip { get; set; }
-        public int? Port { get; set; }
+        
         public List<string> Schedules { get; set; }
-        public List<string> DeployedLocations { get; set; }
+        public List<DeployedLocation> DeployedLocations { get; set; }
 
 
 
@@ -83,21 +78,6 @@ namespace ApplicationCatalog
             }
         }
 
-        public void SetIpPort(string Ip, string port)
-        {
-            if (regexIp.IsMatch(Ip))
-            {
-                this.Ip = Ip;
-            }
-
-            if (this.DeployedType != AppType.ScheduledTask)
-            {
-                int portNum = 80;
-                int.TryParse(port, out portNum);
-                this.Port = portNum;
-            }
-        }
-
         public void AddSchedule(string schedule)
         {
             if (this.DeployedType == AppType.ScheduledTask)
@@ -124,6 +104,7 @@ namespace ApplicationCatalog
                 }
             }
         }
+        
     }
     
 }
