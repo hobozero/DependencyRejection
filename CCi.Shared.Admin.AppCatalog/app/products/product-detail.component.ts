@@ -10,7 +10,7 @@ import { ProductService } from './product.service';
     templateUrl: 'app/products/product-detail.component.html'
 })
 export class ProductDetailComponent implements OnInit, OnDestroy {
-    pageTitle: string = 'Product Detail';
+    pageTitle: string = 'App Detail';
     product: IProduct;
     errorMessage: string;
     private sub: Subscription;
@@ -23,7 +23,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.sub = this._route.params.subscribe(
             params => {
-                let id = +params['id'];
+                let id:string = params['id'];
                 this.getProduct(id);
         });
     }
@@ -32,7 +32,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.sub.unsubscribe();
     }
 
-    getProduct(id: number) {
+    getProduct(id: string) {
         this._productService.getProduct(id).subscribe(
             product => this.product = product,
             error => this.errorMessage = <any>error);
@@ -43,6 +43,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     }
 
     onRatingClicked(message: string): void {
-        this.pageTitle = 'Product Detail: ' + message;
+        this.pageTitle = 'App Detail: ' + message;
     }
 }

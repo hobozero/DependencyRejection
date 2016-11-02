@@ -1,31 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using CCi.Shared.Admin.AppCatalog.Models;
+using System.Web.Http.Cors;
+using ApplicationCatalog;
+using AutoMapper;
+using CCI.Shared.Admin.AppCatalog.Core.Repository;
 
 namespace CCi.Shared.Admin.AppCatalog.Controllers
 {
+    [RoutePrefix("api/Applications")]
     public class ApplicationController : ApiController
     {
-        // GET api/values
+        IDeployedApplicationRepository _repo;
+
+        public ApplicationController():this(new DeployedApplicationRepository(string.Empty, ConfigurationManager.ConnectionStrings["appCatalog"].ConnectionString )) { }
+
+        public ApplicationController(IDeployedApplicationRepository repo)
+        {
+            _repo = repo;
+        }
+
+
+        [Route("")]
         public IEnumerable<ApplicationDto> Get()
         {
-            return new ApplicationDto[]
-            {
-                new ApplicationDto()
-                {
-                    ProjectId = Guid.NewGuid(),
-                    UniqueId = "name1"
-                },
-                new ApplicationDto()
-                {
-                    ProjectId = Guid.NewGuid(),
-                    UniqueId = "name2"
-                }
-            };
+            var apps = _repo.GetApps();
+            var dto = Mapper.Map<IEnumerable<DeployedApplication>, IEnumerable<ApplicationDto>>(apps);
+
+            return dto;
         }
 
         // GET api/values/5

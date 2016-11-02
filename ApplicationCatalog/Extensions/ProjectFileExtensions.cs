@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using AltSource.Utilities.VSSolution;
 using AltSource.Utilities.VSSolution.Reflection;
 
-namespace ApplicationCatalog.Extensions
+namespace CCI.Shared.Admin.AppCatalog.Core.Extensions
 {
     public static class ProjectFileExtensions
     {

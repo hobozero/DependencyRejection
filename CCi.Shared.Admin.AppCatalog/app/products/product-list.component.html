@@ -24,40 +24,22 @@
                    *ngIf='products && products.length'>
                 <thead>
                     <tr>
-                        <th>
-                            <button class='btn btn-primary'
-                                (click)='toggleImage()'>
-                                {{showImage ? 'Hide' : 'Show'}} Image
-                            </button>
-                        </th>
-                        <th>Product</th>
-                        <th>Code</th>
-                        <th>Available</th>
-                        <th>Price</th>
-                        <th>5 Star Rating</th>
+                        <th>App</th>
+                        <th>Type</th>
+                        <th>VCS</th>
+                        <th>Owner</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor='let product of products | productFilter:listFilter'>
-                        <td>
-                            <img *ngIf='showImage'
-                                 [src]='product.imageUrl'
-                                 [title]='product.productName | uppercase'
-                                 [style.width.px]='imageWidth' 
-                                 [style.margin.px]='imageMargin'>
-                        </td>
-                        <td><a [routerLink]="['/product', product.productId]">
-                            {{product.productName}}
+                        <td><a [routerLink]="['/product', product.ProjectId]">
+                            {{product.UniqueId}}
                             </a>
                         </td>
-                        <td>{{ product.productCode | lowercase }}</td>
-                        <td>{{ product.releaseDate }}</td>
-                        <td>{{ product.price | currency:'USD':true:'1.2-2' }}</td>
-                        <td>
-                            <ai-star [rating]='product.starRating'
-                                    (ratingClicked)='onRatingClicked($event)'>
-                            </ai-star>
-                       </td>
+                        <td>{{ product.Description }}</td>
+                        <td>{{ product.VCS }}</td>
+                        <td>{{ product.BusinessArea }}</td>
+                        
                     </tr>
                 </tbody>
             </table>

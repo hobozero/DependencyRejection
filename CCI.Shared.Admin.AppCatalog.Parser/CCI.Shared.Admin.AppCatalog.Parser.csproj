@@ -57,9 +57,9 @@
       <Project>{c391959f-ce4d-4265-a107-cea32b22921b}</Project>
       <Name>AltSource.Utilities.VSSolution</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ApplicationCatalog\ApplicationCatalog.csproj">
+    <ProjectReference Include="..\ApplicationCatalog\CCI.Shared.Admin.AppCatalog.Core.csproj">
       <Project>{18b97aff-304b-4f66-adb3-f8a85b558e8c}</Project>
-      <Name>ApplicationCatalog</Name>
+      <Name>CCI.Shared.Admin.AppCatalog.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using AltSource.Utilities.VSSolution;
 
-namespace ApplicationCatalog.Repository
+namespace CCI.Shared.Admin.AppCatalog.Core.Repository
 {
     public interface IProjectFileRepository
     {

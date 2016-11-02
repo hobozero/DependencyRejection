@@ -8,10 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AltSource.Utilities.VSSolution;
-using ApplicationCatalog.Extensions;
+using CCI.Shared.Admin.AppCatalog.Core.Extensions;
 using Dapper;
 
-namespace ApplicationCatalog.Repository
+namespace CCI.Shared.Admin.AppCatalog.Core.Repository
 {
     public class ProjectFileRepository
     {
@@ -88,6 +88,7 @@ namespace ApplicationCatalog.Repository
                     AssemblyName = projectFile.AssemblyName,
                     OutputType = projectFile.OutputType.ToString(),
                     ProjectType = projectFile.ProjectType.TypeName,
+                    ProjectTypeGuid = projectFile.ProjectType.ID.ToString(),
                     OctoPack = projectFile.OctoPackProjectName,
                     IsTopLevel = projectFile.IsTopLevel,
                     Repo = projectFile.VcsInfo.Repo,

@@ -10,7 +10,7 @@ import { IProduct } from './product';
 
 @Injectable()
 export class ProductService {
-    private _productUrl = 'api/products/products.json';
+    private _productUrl = 'http://localhost:65242/api/applications';
 
     constructor(private _http: Http) { }
 
@@ -21,9 +21,9 @@ export class ProductService {
             .catch(this.handleError);
     }
 
-    getProduct(id: number): Observable<IProduct> {
+    getProduct(id: string): Observable<IProduct> {
         return this.getProducts()
-            .map((products: IProduct[]) => products.find(p => p.productId === id));
+            .map((products: IProduct[]) => products.find(p => p.ProjectId === id));
     }
 
     private handleError(error: Response) {

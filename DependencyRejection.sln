@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltSource.Utilities.VSSolution", "AltSource.Utilities.VSSolution\AltSource.Utilities.VSSolution.csproj", "{C391959F-CE4D-4265-A107-CEA32B22921B}"
 EndProject
@@ -9,31 +9,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyRejectionUI", "De
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltSource.Utilities.VsSolution.Tests", "AltSource.Utilities.VsSolution.Tests\AltSource.Utilities.VsSolution.Tests.csproj", "{DA584526-0597-4583-9630-C48812F30840}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationCatalog", "ApplicationCatalog\ApplicationCatalog.csproj", "{18B97AFF-304B-4F66-ADB3-F8A85B558E8C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCI.Shared.Admin.AppCatalog.Core", "ApplicationCatalog\CCI.Shared.Admin.AppCatalog.Core.csproj", "{18B97AFF-304B-4F66-ADB3-F8A85B558E8C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCi.Shared.Admin.AppCatalog", "CCi.Shared.Admin.AppCatalog\CCi.Shared.Admin.AppCatalog.csproj", "{5E70E1EA-C173-4CAE-9BBE-4B5BEA226B94}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCI.Shared.Admin.AppCatalog.Parser", "CCI.Shared.Admin.AppCatalog.Parser\CCI.Shared.Admin.AppCatalog.Parser.csproj", "{82E42CE0-C066-4365-B8CA-FC7D2C32BB8F}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "APM - Final", "..\..\..\Samples\Angular2-GettingStarted-master\Angular2-GettingStarted-master\APM - Final\", "{D73AA581-BBDA-4398-B372-999D93D12199}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_26035"
-		Debug.AspNetCompiler.PhysicalPath = "..\..\..\Samples\Angular2-GettingStarted-master\Angular2-GettingStarted-master\APM - Final\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_26035\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_26035"
-		Release.AspNetCompiler.PhysicalPath = "..\..\..\Samples\Angular2-GettingStarted-master\Angular2-GettingStarted-master\APM - Final\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_26035\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "26035"
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCI.Shared.Admin.AppCatalog.Core.Tests", "CCI.Shared.Admin.AppCatalog.Shared.Tests\CCI.Shared.Admin.AppCatalog.Core.Tests.csproj", "{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCi.Shared.Admin.AppCatalog.Tests", "CCi.Shared.Admin.AppCatalog.Tests\CCi.Shared.Admin.AppCatalog.Tests.csproj", "{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{45B33860-3D7C-47C4-9B17-1649549B65F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,16 +77,29 @@ Global
 		{82E42CE0-C066-4365-B8CA-FC7D2C32BB8F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{82E42CE0-C066-4365-B8CA-FC7D2C32BB8F}.Release|x86.ActiveCfg = Release|Any CPU
 		{82E42CE0-C066-4365-B8CA-FC7D2C32BB8F}.Release|x86.Build.0 = Release|Any CPU
-		{D73AA581-BBDA-4398-B372-999D93D12199}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D73AA581-BBDA-4398-B372-999D93D12199}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D73AA581-BBDA-4398-B372-999D93D12199}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D73AA581-BBDA-4398-B372-999D93D12199}.Debug|x86.Build.0 = Debug|Any CPU
-		{D73AA581-BBDA-4398-B372-999D93D12199}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{D73AA581-BBDA-4398-B372-999D93D12199}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{D73AA581-BBDA-4398-B372-999D93D12199}.Release|x86.ActiveCfg = Debug|Any CPU
-		{D73AA581-BBDA-4398-B372-999D93D12199}.Release|x86.Build.0 = Debug|Any CPU
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}.Debug|x86.Build.0 = Debug|Any CPU
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}.Release|x86.ActiveCfg = Release|Any CPU
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA}.Release|x86.Build.0 = Release|Any CPU
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}.Debug|x86.Build.0 = Debug|Any CPU
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}.Release|x86.ActiveCfg = Release|Any CPU
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DA584526-0597-4583-9630-C48812F30840} = {45B33860-3D7C-47C4-9B17-1649549B65F8}
+		{EC2E863A-D948-4FAB-8BEA-D98CA0539EDA} = {45B33860-3D7C-47C4-9B17-1649549B65F8}
+		{FE90A7FF-6C91-46BB-9FDD-BFE32077EAE5} = {45B33860-3D7C-47C4-9B17-1649549B65F8}
 	EndGlobalSection
 EndGlobal

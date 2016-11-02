@@ -26,14 +26,7 @@
                     <div class='col-md-3'>Price:</div>
                     <div class='col-md-6'>{{product.price|currency:'USD':true}}</div>
                 </div>
-                <div class='row'>
-                    <div class='col-md-3'>5 Star Rating:</div>
-                    <div class='col-md-6'>
-                        <ai-star [rating]='product.starRating'
-                                (ratingClicked)='onRatingClicked($event)'>
-                        </ai-star>
-                    </div>
-                </div>
+                
             </div>
 
             <div class='col-md-6'>

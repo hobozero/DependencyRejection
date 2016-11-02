@@ -9,14 +9,15 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using AltSource.Utilities.VSSolution;
 using ApplicationCatalog;
 using Dapper;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.VisualBasic.FileIO;
 
-namespace ApplicationCatalog.Repository
+namespace CCI.Shared.Admin.AppCatalog.Core.Repository
 {
-    public class DeployedApplicationRepository
+    public class DeployedApplicationRepository : IDeployedApplicationRepository
     {
         private IDbConnection _dbCn;
         private string _csv;
@@ -26,9 +27,9 @@ namespace ApplicationCatalog.Repository
             _dbCn = new SqlConnection(dbConnectionString);
         }
 
-        public IEnumerable<DeployedApplication> GetApps()
+        public IEnumerable<DeployedApplication> GetSheetApps()
         {
-            List <DeployedApplication> apps = new List<DeployedApplication>();
+            List<DeployedApplication> apps = new List<DeployedApplication>();
 
             using (TextFieldParser parser = new TextFieldParser(@_csv))
             {
@@ -44,7 +45,7 @@ namespace ApplicationCatalog.Repository
                         break;
                     }
 
-                    if (fields.Length > 5 && 
+                    if (fields.Length > 5 &&
                         !string.IsNullOrEmpty(fields[1]) && fields[1] != "-" &&
                         fields[0].ToLower().Trim() != "server")
                     {
@@ -67,7 +68,7 @@ namespace ApplicationCatalog.Repository
                         {
                             app = alreadyApp;
                         }
-                        
+
                         app.AddSchedule(fields[8].Trim());
 
 
@@ -94,6 +95,61 @@ namespace ApplicationCatalog.Repository
             }
             return apps;
 
+        }
+
+        public IEnumerable<DeployedApplication> GetApps()
+        {
+            var rtnList = new List<DeployedApplication>();
+            _dbCn.Open();
+            
+           string sql = @"SELECT [graphId]
+              ,[vcs]
+              ,[Repo]
+              ,[ProjectId]
+              ,[FilePath]
+              ,[AssemblyName]
+              ,[OutputType]
+              ,[ProjectType]
+              ,[ProjectTypeGuid]
+              ,[Description]
+              ,[IsInProd]
+              ,[AutomatedDeploy]
+              ,[BusinessArea]
+              ,DeployedType
+              ,[SolarWinds]
+              ,[Logs]
+              ,[TopLevelType]
+          FROM [ApplicationCatalog].[app].[VW_ApplicationCatalog]";
+
+                foreach (var row in this._dbCn.Query(sql))
+                {
+                try
+                {
+                    var app = new DeployedApplication()
+                    {
+                        BusinessArea = row.BusinessArea,
+                        DeployedLocations = new List<DeployedLocation>(),
+                        DeployedType = (AppType) Enum.Parse(typeof (AppType), row.DeployedType.ToString().Trim()),
+                        Description = row.Description,
+                        Logs = row.Logs,
+                        OctoName = row.graphId,
+                        ProjectFile =
+                        ProjectFile.Build(
+                            row.ProjectId, 
+                            row.AssemblyName,
+                            ProjectTypeDict.Get(row.ProjectTypeGuid)
+                            ),
+                        Schedules = new List<string>(),
+                        SolarWinds = (SolarWinds)Enum.Parse(typeof(SolarWinds), row.SolarWinds.ToString().Trim())
+                    };
+                    rtnList.Add(app);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+           
+            return rtnList;
         }
 
         public void UpsertApplication(DeployedApplication application)

@@ -15,7 +15,7 @@ using System.Security.AccessControl;
 using System.Xml.Linq;
 using AltSource.Utilities.VSSolution.Filters;
 using ApplicationCatalog;
-using ApplicationCatalog.Repository;
+using CCI.Shared.Admin.AppCatalog.Core.Repository;
 
 namespace DependercyRejectionUI
 {
@@ -740,7 +740,7 @@ namespace DependercyRejectionUI
 
                 var repo = new DeployedApplicationRepository(dialog.FileName, db);
 
-                catalogApps = repo.GetApps();
+                catalogApps = repo.GetSheetApps();
 
                 foreach (var catalogApp in catalogApps)
                 {

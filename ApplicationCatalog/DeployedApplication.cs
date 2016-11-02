@@ -5,6 +5,7 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AltSource.Utilities.VSSolution;
 
 namespace ApplicationCatalog
 {
@@ -25,6 +26,7 @@ namespace ApplicationCatalog
         WindowsService,
         WPF,
         WebService,
+        DB
     }
     
     public class DeployedApplication
@@ -105,6 +107,7 @@ namespace ApplicationCatalog
             }
         }
         
+        public ProjectFile ProjectFile { get; set; }
     }
     
 }

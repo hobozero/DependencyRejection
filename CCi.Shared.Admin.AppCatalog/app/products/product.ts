@@ -1,12 +1,16 @@
 /* Defines the product entity */
 export interface IProduct {
-    productId: number;
-    productName: string;
-    productCode: string;
-    releaseDate: string;
-    price: number;
-    description: string;
-    starRating: number;
-    imageUrl: string;
+    UniqueId: string,
+    ProjectId: string,
+    Description: string,
+    VCS: string,
+    Path: string,
+    Assembly: string,
+    OutputType: string,
+    ProjectType: string,
+    AutomatedDeploy: string,
+    BusinessArea: string,
+    DeployedType: string,
+    SolarWinds: string
 }
 

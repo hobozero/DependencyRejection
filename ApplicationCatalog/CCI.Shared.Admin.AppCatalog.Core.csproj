@@ -7,8 +7,8 @@
     <ProjectGuid>{18B97AFF-304B-4F66-ADB3-F8A85B558E8C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ApplicationCatalog</RootNamespace>
-    <AssemblyName>ApplicationCatalog</AssemblyName>
+    <RootNamespace>CCI.Shared.Admin.AppCatalog.Core</RootNamespace>
+    <AssemblyName>CCI.Shared.Admin.AppCatalog.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -99,6 +99,7 @@
     <Compile Include="Extensions\ProjectFileExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\DeployedApplicationRepository.cs" />
+    <Compile Include="Repository\IDeployedApplicationRepository.cs" />
     <Compile Include="Repository\IProjectFileRepository.cs" />
     <Compile Include="Repository\ProjectFileRepository.cs" />
   </ItemGroup>

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AltSource.Utilities.VSSolution;
-using ApplicationCatalog.Repository;
+using CCI.Shared.Admin.AppCatalog.Core.Repository;
 
 namespace CCI.Shared.Admin.AppCatalog.Parser
 {
