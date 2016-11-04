@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AltSource.Utilities.VSSolution;
+using AltSource.Utilities.VSSolution.Graph;
 using CCI.Shared.Admin.AppCatalog.Core.Extensions;
 using Dapper;
 
@@ -80,6 +81,11 @@ namespace CCI.Shared.Admin.AppCatalog.Core.Repository
         {
             string sql = @"app.usp_ProjectFile_Upsert";
 
+
+            var nodeGraph = new ProjectGraph();
+            var downGraph = nodeGraph.BuildGraph(projectFile, false);
+            var upGraph = nodeGraph.BuildGraph(projectFile, true);
+
             int rowsAffected = this._db.Execute(sql,
                 new
                 {
@@ -93,7 +99,10 @@ namespace CCI.Shared.Admin.AppCatalog.Core.Repository
                     IsTopLevel = projectFile.IsTopLevel,
                     Repo = projectFile.VcsInfo.Repo,
                     Vcs = projectFile.VcsInfo.Vcs.ToString(),
-                    SourceXML = projectFile.Xml
+                    SourceXML = projectFile.Xml,
+                    dependsOn = downGraph.TotalEdges,
+                    dependedOn = upGraph.TotalEdges
+
                 },
                 commandType: CommandType.StoredProcedure);
 

@@ -2,6 +2,9 @@
 Thumbs.db
 ehthumbs.db
 
+app/*.js
+app/*.map
+
 # Folder config file
 Desktop.ini
 

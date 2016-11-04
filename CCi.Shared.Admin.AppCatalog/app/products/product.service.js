@@ -17,7 +17,7 @@ require('rxjs/add/operator/map');
 var ProductService = (function () {
     function ProductService(_http) {
         this._http = _http;
-        this._productUrl = 'api/products/products.json';
+        this._productUrl = 'http://localhost:65242/api/applications';
     }
     ProductService.prototype.getProducts = function () {
         return this._http.get(this._productUrl)
@@ -27,7 +27,7 @@ var ProductService = (function () {
     };
     ProductService.prototype.getProduct = function (id) {
         return this.getProducts()
-            .map(function (products) { return products.find(function (p) { return p.productId === id; }); });
+            .map(function (products) { return products.find(function (p) { return p.ProjectId === id; }); });
     };
     ProductService.prototype.handleError = function (error) {
         // in a real world app, we may send the server to some remote logging infrastructure

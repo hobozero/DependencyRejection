@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AltSource.Utilities.VSSolution.Graph;
 
 namespace DependercyRejectionUI
 {
@@ -22,38 +23,29 @@ namespace DependercyRejectionUI
 
     static class TreeNodeBuilder
     {
-        public static RollupNode BuildTreeNodes(ProjectFile file, List<IGraphFilter> displayFilters, bool traverseUp)
+        public static RollupNode BuildTreeNodes(ProjectNode projNode, List<IGraphFilter> displayFilters)
         {
             foreach (var filter in displayFilters)
             {
-                if (!filter.IsVisible(file))
+                if (!filter.IsVisible(projNode.ProjectFile))
                     return null;
             }
-
-            var relatedProjects = (traverseUp) ? file.ReferencedByProjects : file.ReferencesProjects;
-
-            int projectCount = relatedProjects.Count;
-
+            
             var thisNode = new TreeNode()
             {
-                Text = string.Format("{0}: {1} - [{2}]", 
-                    file.AssemblyName, 
-                    (0 == projectCount) ? string.Empty : projectCount.ToString(),
-                    file.ProjectType.TypeName
-                    )
+                Text = projNode.ToString()
             };
 
-            foreach (var project in relatedProjects.OrderBy(proj => proj.AssemblyName))
+            foreach (var project in projNode.Related.OrderBy(proj => proj.ProjectFile.AssemblyName))
             {
-                var relatedTreeNode = BuildTreeNodes(project, displayFilters, traverseUp);
+                var relatedTreeNode = BuildTreeNodes(project, displayFilters);
                 if (relatedTreeNode != null)
                 {
                     thisNode.Nodes.Add(relatedTreeNode.Node);
-                    projectCount += relatedTreeNode.ChildCount;
                 }
             }
 
-            return new RollupNode(thisNode, projectCount);
+            return new RollupNode(thisNode, projNode.TotalEdges);
         }
     }
 }

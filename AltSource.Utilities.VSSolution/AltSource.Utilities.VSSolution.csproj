@@ -73,6 +73,8 @@
     <Compile Include="Filters\ProjectOutputTypeFilter.cs" />
     <Compile Include="Filters\ProjectTypeFilter.cs" />
     <Compile Include="Filters\SolutionComparer.cs" />
+    <Compile Include="Graph\ProjectGraph.cs" />
+    <Compile Include="Graph\ProjectNode.cs" />
     <Compile Include="PackagesFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectFile.cs" />

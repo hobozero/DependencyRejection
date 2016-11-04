@@ -83,9 +83,9 @@
       <Project>{18b97aff-304b-4f66-adb3-f8a85b558e8c}</Project>
       <Name>CCI.Shared.Admin.AppCatalog.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CCi.Shared.Admin.AppCatalog\CCi.Shared.Admin.AppCatalog.csproj">
+    <ProjectReference Include="..\CCi.Shared.Admin.AppCatalog\CCi.Shared.Admin.AppCatalog.Web.csproj">
       <Project>{5e70e1ea-c173-4cae-9bbe-4b5bea226b94}</Project>
-      <Name>CCi.Shared.Admin.AppCatalog</Name>
+      <Name>CCi.Shared.Admin.AppCatalog.Web</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltSource.Utilities.VsSolut
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCI.Shared.Admin.AppCatalog.Core", "ApplicationCatalog\CCI.Shared.Admin.AppCatalog.Core.csproj", "{18B97AFF-304B-4F66-ADB3-F8A85B558E8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCi.Shared.Admin.AppCatalog", "CCi.Shared.Admin.AppCatalog\CCi.Shared.Admin.AppCatalog.csproj", "{5E70E1EA-C173-4CAE-9BBE-4B5BEA226B94}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCi.Shared.Admin.AppCatalog.Web", "CCi.Shared.Admin.AppCatalog\CCi.Shared.Admin.AppCatalog.Web.csproj", "{5E70E1EA-C173-4CAE-9BBE-4B5BEA226B94}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCI.Shared.Admin.AppCatalog.Parser", "CCI.Shared.Admin.AppCatalog.Parser\CCI.Shared.Admin.AppCatalog.Parser.csproj", "{82E42CE0-C066-4365-B8CA-FC7D2C32BB8F}"
 EndProject

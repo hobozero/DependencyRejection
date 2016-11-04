@@ -14,6 +14,7 @@ using System.IO;
 using System.Security.AccessControl;
 using System.Xml.Linq;
 using AltSource.Utilities.VSSolution.Filters;
+using AltSource.Utilities.VSSolution.Graph;
 using ApplicationCatalog;
 using CCI.Shared.Admin.AppCatalog.Core.Repository;
 
@@ -197,17 +198,23 @@ namespace DependercyRejectionUI
         {
             TreeView_AssemblyInformationTree.Nodes.Clear();
 
-            var down = TreeNodeBuilder.BuildTreeNodes(projectFile, displayFilters, false);
-            if (down != null)
+            var nodeGraph = new ProjectGraph();
+
+            var downNode = nodeGraph.BuildGraph(projectFile, false);
+            if (downNode != null)
             {
+                var down = TreeNodeBuilder.BuildTreeNodes(downNode, displayFilters);
+
                 var node = new TreeNode() {Text = "Dependencies Down " + down.ChildCount};
                 node.Nodes.Add(down.Node);
                 TreeView_AssemblyInformationTree.Nodes.Add(node);
             }
+            
 
-            var up = TreeNodeBuilder.BuildTreeNodes(projectFile, displayFilters, true);
-            if (up != null)
+            var upNode = nodeGraph.BuildGraph(projectFile, false);
+            if (upNode != null)
             {
+                var up = TreeNodeBuilder.BuildTreeNodes(upNode, displayFilters);
                 var node = new TreeNode() {Text = "Dependencies Up " + up.ChildCount};
                 node.Nodes.Add(up.Node);
                 TreeView_AssemblyInformationTree.Nodes.Add(node);

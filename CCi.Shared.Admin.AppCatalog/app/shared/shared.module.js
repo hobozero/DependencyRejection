@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var common_1 = require('@angular/common');
 var forms_1 = require('@angular/forms');
-var star_component_1 = require('./star.component');
 var SharedModule = (function () {
     function SharedModule() {
     }
@@ -20,10 +19,9 @@ var SharedModule = (function () {
             imports: [common_1.CommonModule],
             exports: [
                 common_1.CommonModule,
-                forms_1.FormsModule,
-                star_component_1.StarComponent
+                forms_1.FormsModule
             ],
-            declarations: [star_component_1.StarComponent],
+            declarations: [],
         }), 
         __metadata('design:paramtypes', [])
     ], SharedModule);

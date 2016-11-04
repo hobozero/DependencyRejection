@@ -16,12 +16,12 @@ var ProductDetailComponent = (function () {
         this._route = _route;
         this._router = _router;
         this._productService = _productService;
-        this.pageTitle = 'Product Detail';
+        this.pageTitle = 'App Detail';
     }
     ProductDetailComponent.prototype.ngOnInit = function () {
         var _this = this;
         this.sub = this._route.params.subscribe(function (params) {
-            var id = +params['id'];
+            var id = params['id'];
             _this.getProduct(id);
         });
     };
@@ -36,7 +36,7 @@ var ProductDetailComponent = (function () {
         this._router.navigate(['/products']);
     };
     ProductDetailComponent.prototype.onRatingClicked = function (message) {
-        this.pageTitle = 'Product Detail: ' + message;
+        this.pageTitle = 'App Detail: ' + message;
     };
     ProductDetailComponent = __decorate([
         core_1.Component({
